@@ -93,7 +93,7 @@ function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:athena})
     while next
         result = Athena.get_query_results(exe_query["QueryExecutionId"], params; aws_config = sqlquery.db)
         next = haskey(result, "NextToken")
-        params = Dict{String, Any}(mergewith(_merge, next ? Dict("NextToken" => result["NextToken"]) : Dict(), sqlquery.athena_params))
+        params = merge(sqlquery.athena_params, next ? Dict("NextToken" => result["NextToken"]) : Dict{String, Any}())
         push!(dfs, collect_athena(result, isempty(dfs)))
     end
     return vcat(dfs...)
